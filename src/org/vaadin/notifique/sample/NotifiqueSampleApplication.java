@@ -39,6 +39,7 @@ public class NotifiqueSampleApplication extends Application implements
                 Notifique.Styles.ERROR, Notifique.Styles.MESSAGE,
                 Notifique.Styles.MAGIC_BLACK, Notifique.Styles.MAGIC_GRAY,
                 Notifique.Styles.MAGIC_WHITE, Notifique.Styles.BROWSER_FF,
+                Notifique.Styles.BROWSER_FF3,
                 Notifique.Styles.BROWSER_IE,
                 Notifique.Styles.BROWSER_CHROME,
                 Notifique.Styles.VAADIN_BLACK,

@@ -115,6 +115,37 @@
 	background-repeat: no-repeat;
 }
 
+.queue .ff3 .v-csslayout-margin {
+	color: #000000;
+	margin: 0;
+	padding: 0;
+	padding-left: 6px;
+	border: 1px solid #FFE970;
+	border-bottom: 1px solid #BF8A01;
+	border-right: 1px solid #BF8A01;
+		background-color: #FFE13E;
+	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FFE13E),
+		to(#FFC703) );
+	background: -moz-linear-gradient(center top, #FFE13E, #FFC703) repeat
+		scroll 0 0 transparent;
+	filter: progid :     DXImageTransform.Microsoft.gradient (    
+		startColorStr =  
+		  #FFE13EFF, endColorStr = #FFC703FF, GradientType = 1 );
+	-ms-filter:
+		"progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFC703FF, endColorstr=#FFC703FF)"
+		;
+	
+}
+
+.queue .ff3 .close {
+	margin: 4px;
+	width: 22px;
+	height: 22px;
+	background-image: url("close-ff3.png");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
 .queue .ie .v-csslayout-margin {
 	color: #000000;
 	background-color: #FFFFE4;
@@ -152,8 +183,6 @@
 		"progid:DXImageTransform.Microsoft.gradient(startColorstr=#FFF0BDFF, endColorstr=#FBE69EFF)"
 		;
 	border: 1px solid #CCCCCC;
-	background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#FBE69E),
-		to(#FBE69E) );
 }
 
 .queue .chrome .close {

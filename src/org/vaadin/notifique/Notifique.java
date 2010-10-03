@@ -28,7 +28,7 @@ public class Notifique extends CustomComponent {
      * Built-in message styles.
      *
      */
-    public interface Styles {
+    public interface Styles extends Serializable{
         static String INFO = "info";
         static String SUCCESS = "success";
         static String WARNING = "warning";
@@ -38,6 +38,7 @@ public class Notifique extends CustomComponent {
         static String MAGIC_GRAY = "magic-gray";
         static String MAGIC_WHITE = "magic-white";
         static String BROWSER_FF = "ff";
+        static String BROWSER_FF3 = "ff3";
         static String BROWSER_IE = "ie";
         static String BROWSER_CHROME = "chrome";
         static String VAADIN_BLACK = "vaadin-black";
@@ -52,7 +53,7 @@ public class Notifique extends CustomComponent {
      * Listener interface for message clicks.
      *
      */
-    public interface ClickListener {
+    public interface ClickListener extends Serializable {
 
         public void messageClicked(Message message);
 
@@ -62,7 +63,7 @@ public class Notifique extends CustomComponent {
      * Listener interface for message close events.
      *
      */
-    public interface HideListener {
+    public interface HideListener extends Serializable {
 
         public void messageHide(Message message);
 
