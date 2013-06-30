@@ -9,7 +9,7 @@ import org.vaadin.jouni.animator.Animator;
 
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
-import com.vaadin.terminal.Resource;
+import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -76,6 +76,7 @@ public class Notifique extends CustomComponent {
     private static final long serialVersionUID = -4838466600618368413L;
 
     private Panel root;
+    private CssLayout css;
     private List<Message> items = new LinkedList<Message>();
     private boolean autoScroll;
     private int visibleCount = 5;
@@ -160,15 +161,14 @@ public class Notifique extends CustomComponent {
     }
 
     public Notifique(boolean autoScroll) {
-        CssLayout css;
-        root = new Panel(css = new CssLayout());
+        css = new CssLayout();
+        root = new Panel(css);
         root.setStyleName(Reindeer.PANEL_LIGHT);
         css.setWidth("100%");
         root.addStyleName(STYLE_QUEUE);
         root.getContent().setStyleName(STYLE_QUEUE);
         setCompositionRoot(root);
         this.autoScroll = autoScroll;
-        root.setScrollable(true);
     }
 
     /**
@@ -184,7 +184,7 @@ public class Notifique extends CustomComponent {
                         .addComponentAsFirst(m.animation);
             } else {
                 items.add(m);
-                root.addComponent(m.animation);
+                css.addComponent(m.animation);
             }
             m.show();
             if (autoScroll && items.size() > getVisibleCount()) {
@@ -212,7 +212,7 @@ public class Notifique extends CustomComponent {
             }
 
             if (removed != null) {
-                root.removeComponent(removed.animation);
+                css.removeComponent(removed.animation);
                 items.remove(removed);
             }
         }
@@ -307,7 +307,7 @@ public class Notifique extends CustomComponent {
     public void clear() {
         synchronized (items) {
             items.clear();
-            root.removeAllComponents();
+            root.setContent(null);
         }
     }
 

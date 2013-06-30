@@ -2,20 +2,20 @@ package org.vaadin.notifique.sample;
 
 import java.util.Date;
 
+import com.vaadin.server.VaadinRequest;
 import org.vaadin.notifique.Notifique;
 import org.vaadin.notifique.Notifique.ClickListener;
 import org.vaadin.notifique.Notifique.HideListener;
 import org.vaadin.notifique.Notifique.Message;
 
-import com.vaadin.Application;
-import com.vaadin.terminal.Resource;
-import com.vaadin.terminal.ThemeResource;
+import com.vaadin.ui.*;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 
-public class NotifiqueSampleApplication extends Application implements
+public class NotifiqueSampleApplicationUI extends UI implements
         ClickListener, HideListener {
 
     private static final long serialVersionUID = -7235009716318488720L;
@@ -23,16 +23,16 @@ public class NotifiqueSampleApplication extends Application implements
     private Notifique flow;
 
     @Override
-    public void init() {
-        Window w = new Window("Notifique Sample Application");
+    public void init(VaadinRequest request) {
+        VerticalLayout view = new VerticalLayout();
         stack = new Notifique(false);
         stack.setClickListener(this);
         stack.setHideListener(this);
         stack.setWidth("100%");
-        w.addComponent(stack);
+        view.addComponent(stack);
 
         HorizontalLayout btns = new HorizontalLayout();
-        w.addComponent(btns);
+        view.addComponent(btns);
 
         String[] styles = new String[] { Notifique.Styles.INFO,
                 Notifique.Styles.SUCCESS, Notifique.Styles.WARNING,
@@ -81,8 +81,8 @@ public class NotifiqueSampleApplication extends Application implements
         flow.setVisibleCount(4);
         flow.setWidth("200px");
         flow.setHeight("400px");
-        w.addComponent(flow);
-        w.addComponent(new Button("add", new Button.ClickListener() {
+        view.addComponent(flow);
+        view.addComponent(new Button("add", new Button.ClickListener() {
             private static final long serialVersionUID = 1L;
 
             public void buttonClick(ClickEvent event) {
@@ -92,7 +92,7 @@ public class NotifiqueSampleApplication extends Application implements
             }
         }));
 
-        setMainWindow(w);
+        setContent(view);
     }
 
     /**
@@ -107,11 +107,11 @@ public class NotifiqueSampleApplication extends Application implements
     }
 
     public void messageClicked(Message message) {
-        getMainWindow().showNotification("message clicked");
+        Notification.show("message clicked");
         message.hide();
     }
 
     public void messageHide(Message message) {
-        getMainWindow().showNotification("message hide");
+        Notification.show("message hide");
     }
 }
