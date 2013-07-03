@@ -11,8 +11,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vaadin.version>7.1.0.h.M0</vaadin.version>
-        <plugin.vaadin.version>7.1.0</plugin.vaadin.version>
+        <vaadin.version>7.1.0</vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <jdkVersion>1.7</jdkVersion>
     </properties>
@@ -134,7 +133,7 @@
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${plugin.vaadin.version}</version>
+                <version>${vaadin.plugin.version}</version>
                 <configuration>
                     <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
                     <webappDirectory>${basedir}/WebContent/VAADIN/widgetsets
