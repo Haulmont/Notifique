@@ -2,6 +2,7 @@ package org.vaadin.notifique.sample;
 
 import java.util.Date;
 
+import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import org.vaadin.notifique.Notifique;
 import org.vaadin.notifique.Notifique.ClickListener;
@@ -15,6 +16,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 
+@Theme("reindeer")
 public class NotifiqueSampleApplicationUI extends UI implements
         ClickListener, HideListener {
 

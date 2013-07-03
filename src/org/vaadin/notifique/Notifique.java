@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.vaadin.jouni.animator.Animator;
-
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.Resource;
@@ -21,6 +19,8 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
+import org.vaadin.jouni.animator.AnimatorProxy;
+import org.vaadin.jouni.animator.shared.AnimType;
 
 public class Notifique extends CustomComponent {
 
@@ -77,22 +77,25 @@ public class Notifique extends CustomComponent {
 
     private Panel root;
     private CssLayout css;
-    private List<Message> items = new LinkedList<Message>();
+    private List<Message> items = new LinkedList();
     private boolean autoScroll;
     private int visibleCount = 5;
     private boolean fillFromTop = false;
     private HideListener hideListener;
     private ClickListener clickListener;
+    private AnimatorProxy ap;
 
     public class Message implements Serializable {
         private static final long serialVersionUID = 5892777954593320723L;
         private Component component;
-        private MessageAnimator animation;
+        private CssLayout animatedContent;
         private boolean visible;
         private Object data;
 
         private void show() {
-            animation.rollDown();
+            ap.animate(animatedContent, AnimType.ROLL_DOWN_OPEN).setDuration(200)
+                    .setDelay(0);
+
             visible = true;
         }
 
@@ -100,7 +103,8 @@ public class Notifique extends CustomComponent {
             if (!isVisible()) {
                 return;
             }
-            animation.rollUp();
+            ap.animate(animatedContent, AnimType.ROLL_UP_CLOSE_REMOVE).setDuration(200)
+                    .setDelay(0);
             visible = false;
             if (getHideListener() != null) {
                 getHideListener().messageHide(this);
@@ -130,41 +134,51 @@ public class Notifique extends CustomComponent {
     }
 
     /**
-     * Custom animator extension allowing us to react on hide events coming from
-     * client-side.
-     *
-     * We use this to actually remove the components from layout after they have
-     * been animated away.
-     *
-     * @author Sami Ekblad
-     *
-     */
-    public class MessageAnimator extends Animator {
-        private static final long serialVersionUID = 1L;
-
-        @Override
-        public void changeVariables(Object source, Map<String, Object> variables) {
-            boolean wasHidden = isRolledUp();
-            super.changeVariables(source, variables);
-            if (!wasHidden && isRolledUp()) {
-                removeAfterHide(this);
-            } else if (!isRolledUp() && !fillFromTop) {
-                root.setScrollTop(10000);
-                root.requestRepaint(); // TODO
-            }
-        }
-
-        public MessageAnimator(Component toAnimate) {
-            super(toAnimate);
-            setWidth("100%");
-        }
-    }
+//     * Custom animator extension allowing us to react on hide events coming from
+//     * client-side.
+//     *
+//     * We use this to actually remove the components from layout after they have
+//     * been animated away.
+//     *
+//     * @author Sami Ekblad
+//     *
+//     */
+//    public class MessageAnimator extends Animator {
+//        private static final long serialVersionUID = 1L;
+//
+//        @Override
+//        public void changeVariables(Object source, Map<String, Object> variables) {
+//            boolean wasHidden = isRolledUp();
+//            super.changeVariables(source, variables);
+//            if (!wasHidden && isRolledUp()) {
+//                removeAfterHide(this);
+//            } else if (!isRolledUp() && !fillFromTop) {
+//                root.setScrollTop(10000);
+//                root.requestRepaint(); // TODO
+//            }
+//        }
+//
+//        public MessageAnimator(Component toAnimate) {
+//            super(toAnimate);
+//            setWidth("100%");
+//        }
+//    }
 
     public Notifique(boolean autoScroll) {
+        ap = new AnimatorProxy();
         css = new CssLayout();
         root = new Panel(css);
         root.setStyleName(Reindeer.PANEL_LIGHT);
         css.setWidth("100%");
+        css.addComponent(ap);
+        ap.addListener(new AnimatorProxy.AnimationListener() {
+            @Override
+            public void onAnimation(AnimatorProxy.AnimationEvent animationEvent) {
+                if (animationEvent.getAnimation().getType().equals(AnimType.ROLL_LEFT_CLOSE_REMOVE)) {
+                    items.remove(animationEvent.getComponent());
+                }
+            }
+        });
         root.addStyleName(STYLE_QUEUE);
         root.getContent().setStyleName(STYLE_QUEUE);
         setCompositionRoot(root);
@@ -181,10 +195,10 @@ public class Notifique extends CustomComponent {
             if (fillFromTop) {
                 items.add(0, m);
                 ((CssLayout) root.getContent())
-                        .addComponentAsFirst(m.animation);
+                        .addComponentAsFirst(m.animatedContent);
             } else {
                 items.add(m);
-                css.addComponent(m.animation);
+                css.addComponent(m.animatedContent);
             }
             m.show();
             if (autoScroll && items.size() > getVisibleCount()) {
@@ -196,27 +210,27 @@ public class Notifique extends CustomComponent {
         }
     }
 
-    /**
-     * Remove the item after it has been hidden.
-     *
-     * @param toBeRemoved
-     */
-    private void removeAfterHide(MessageAnimator toBeRemoved) {
-        synchronized (items) {
-            Message removed = null;
-            for (Message m : items) {
-                if (m.animation.equals(toBeRemoved)) {
-                    removed = m;
-                    break;
-                }
-            }
-
-            if (removed != null) {
-                css.removeComponent(removed.animation);
-                items.remove(removed);
-            }
-        }
-    }
+//    /**
+//     * Remove the item after it has been hidden.
+//     *
+//     * @param toBeRemoved
+//     */
+//    private void removeAfterHide(MessageAnimator toBeRemoved) {
+//        synchronized (items) {
+//            Message removed = null;
+//            for (Message m : items) {
+//                if (m.animatedContent.equals(toBeRemoved)) {
+//                    removed = m;
+//                    break;
+//                }
+//            }
+//
+//            if (removed != null) {
+//                css.removeComponent(removed.animatedContent);
+//                items.remove(removed);
+//            }
+//        }
+//    }
 
     /**
      * Create a new item into the queue. It is not visible until added with
@@ -239,10 +253,8 @@ public class Notifique extends CustomComponent {
         css.addComponent(component);
 
         // Wrap component into an animator
-        final MessageAnimator anim = new MessageAnimator(css);
         m.component = component;
-        m.animation = anim;
-        anim.setImmediate(true);
+        m.animatedContent = css;
 
         return m;
     }

@@ -11,7 +11,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vaadin.version>7.1.0</vaadin.version>
+        <vaadin.version>7.1.0.h.M0</vaadin.version>
+        <plugin.vaadin.version>7.1.0</plugin.vaadin.version>
         <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
         <jdkVersion>1.7</jdkVersion>
     </properties>
@@ -56,14 +57,14 @@
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-client</artifactId>
+            <artifactId>vaadin-themes</artifactId>
             <version>${vaadin.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
-            <artifactId>vaadin-themes</artifactId>
+            <artifactId>vaadin-client</artifactId>
             <version>${vaadin.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.vaadin.addons</groupId>
@@ -106,6 +107,20 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.2.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>2.4.1</version>
                 <configuration>
@@ -119,7 +134,7 @@
             <plugin>
                 <groupId>com.vaadin</groupId>
                 <artifactId>vaadin-maven-plugin</artifactId>
-                <version>${vaadin.plugin.version}</version>
+                <version>${plugin.vaadin.version}</version>
                 <configuration>
                     <extraJvmArgs>-Xmx512M -Xss1024k</extraJvmArgs>
                     <webappDirectory>${basedir}/WebContent/VAADIN/widgetsets
@@ -144,6 +159,18 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>maven-jetty-plugin</artifactId>
+                <configuration>
+                    <webAppSourceDirectory>${basedir}/WebContent</webAppSourceDirectory>
+                    <webAppConfig>
+                        <baseResource implementation="org.mortbay.resource.ResourceCollection">
+                            <resourcesAsCSV>${basedir}/WebContent</resourcesAsCSV>
+                        </baseResource>
+                    </webAppConfig>
+                </configuration>
             </plugin>
         </plugins>
     </build>
