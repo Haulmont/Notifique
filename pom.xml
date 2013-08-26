@@ -5,7 +5,7 @@
     <groupId>com.haulmont.thirdparty</groupId>
     <artifactId>notifique</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.0</version>
+    <version>1.1.2</version>
     <name>Vaadin Notifique Addon</name>
 
 
@@ -48,16 +48,19 @@
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-server</artifactId>
             <version>${vaadin.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-client-compiled</artifactId>
             <version>${vaadin.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-themes</artifactId>
             <version>${vaadin.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.vaadin</groupId>
@@ -66,15 +69,14 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.vaadin.addons</groupId>
+            <groupId>com.haulmont.thirdparty</groupId>
             <artifactId>animator</artifactId>
-            <version>1.7.3</version>
+            <version>1.7.4</version>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.4</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

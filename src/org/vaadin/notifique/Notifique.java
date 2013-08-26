@@ -1,6 +1,7 @@
 package org.vaadin.notifique;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -318,8 +319,19 @@ public class Notifique extends CustomComponent {
      */
     public void clear() {
         synchronized (items) {
+            final LinkedList<Component> l = new LinkedList<Component>();
+
+            for (final Iterator<Component> i = css.getComponentIterator(); i.hasNext();) {
+                l.add(i.next());
+            }
+
+            for (final Iterator<Component> i = l.iterator(); i.hasNext();) {
+                Component component = i.next();
+                if (component instanceof CssLayout) {
+                    css.removeComponent(component);
+                }
+            }
             items.clear();
-            root.setContent(null);
         }
     }
 
