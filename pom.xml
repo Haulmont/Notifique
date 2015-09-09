@@ -5,14 +5,13 @@
     <groupId>com.haulmont.thirdparty</groupId>
     <artifactId>notifique</artifactId>
     <packaging>jar</packaging>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
     <name>Vaadin Notifique Addon</name>
-
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <vaadin.version>7.1.0</vaadin.version>
-        <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
+        <vaadin.version>7.4.6</vaadin.version>
+        <vaadin.plugin.version>7.4.6</vaadin.plugin.version>
         <jdkVersion>1.7</jdkVersion>
     </properties>
     <repositories>
