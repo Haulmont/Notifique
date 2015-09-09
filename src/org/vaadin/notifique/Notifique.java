@@ -16,36 +16,27 @@
 
 package org.vaadin.notifique;
 
-import java.io.Serializable;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.Resource;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.CssLayout;
-import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Embedded;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
+import com.vaadin.ui.*;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.themes.Reindeer;
 import org.vaadin.jouni.animator.AnimatorProxy;
 import org.vaadin.jouni.animator.shared.AnimType;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
 public class Notifique extends CustomComponent {
 
     /**
      * Built-in message styles.
-     *
      */
-    public interface Styles extends Serializable{
+    public interface Styles extends Serializable {
         static String INFO = "info";
         static String SUCCESS = "success";
         static String WARNING = "warning";
@@ -64,11 +55,10 @@ public class Notifique extends CustomComponent {
         static String VAADIN_GREEN = "vaadin-green";
         static String VAADIN_BLUE = "vaadin-blue";
         static String VAADIN_ORANGE = "vaadin-orange";
-    };
+    }
 
     /**
      * Listener interface for message clicks.
-     *
      */
     public interface ClickListener extends Serializable {
 
@@ -78,7 +68,6 @@ public class Notifique extends CustomComponent {
 
     /**
      * Listener interface for message close events.
-     *
      */
     public interface HideListener extends Serializable {
 
@@ -94,13 +83,14 @@ public class Notifique extends CustomComponent {
 
     private Panel root;
     private CssLayout css;
-    private List<Message> items = new LinkedList();
+    private List<Message> items = new LinkedList<>();
     private boolean autoScroll;
     private int visibleCount = 5;
     private boolean fillFromTop = false;
     private HideListener hideListener;
     private ClickListener clickListener;
     private AnimatorProxy ap;
+    protected List<AnimatorProxy.Animation> runningAnimations = new ArrayList<>();
 
     public class Message implements Serializable {
         private static final long serialVersionUID = 5892777954593320723L;
@@ -110,9 +100,7 @@ public class Notifique extends CustomComponent {
         private Object data;
 
         private void show() {
-            ap.animate(animatedContent, AnimType.ROLL_DOWN_OPEN).setDuration(200)
-                    .setDelay(0);
-
+            runningAnimations.add(ap.animate(animatedContent, AnimType.ROLL_DOWN_OPEN).setDuration(200).setDelay(0));
             visible = true;
         }
 
@@ -148,6 +136,13 @@ public class Notifique extends CustomComponent {
             return Notifique.this;
         }
 
+        public CssLayout getAnimatedContent() {
+            return animatedContent;
+        }
+
+        public void setAnimatedContent(CssLayout animatedContent) {
+            this.animatedContent = animatedContent;
+        }
     }
 
     /**
@@ -191,8 +186,9 @@ public class Notifique extends CustomComponent {
         ap.addListener(new AnimatorProxy.AnimationListener() {
             @Override
             public void onAnimation(AnimatorProxy.AnimationEvent animationEvent) {
-                if (animationEvent.getAnimation().getType().equals(AnimType.ROLL_LEFT_CLOSE_REMOVE)) {
-                    items.remove(animationEvent.getComponent());
+                if (animationEvent.getAnimation().getType().equals(AnimType.ROLL_LEFT_CLOSE_REMOVE)
+                        || AnimType.ROLL_UP_CLOSE_REMOVE.equals(animationEvent.getAnimation().getType())) {
+                    removeComponentMessage(animationEvent.getComponent());
                 }
             }
         });
@@ -200,6 +196,20 @@ public class Notifique extends CustomComponent {
         root.getContent().setStyleName(STYLE_QUEUE);
         setCompositionRoot(root);
         this.autoScroll = autoScroll;
+    }
+
+    protected void removeComponentMessage(Component component) {
+        if (component == null)
+            return;
+
+        Iterator<Message> iterator = items.iterator();
+        while (iterator().hasNext()) {
+            Message msg = iterator.next();
+            if (component.equals(msg.getAnimatedContent())) {
+                iterator.remove();
+                return;
+            }
+        }
     }
 
     /**
@@ -251,12 +261,6 @@ public class Notifique extends CustomComponent {
 
     /**
      * Create a new item into the queue. It is not visible until added with
-     *
-     * @param style
-     *
-     * @param animation
-     * @param string
-     * @return
      */
     protected Message createMessage(final Component component, String style) {
 
@@ -266,7 +270,7 @@ public class Notifique extends CustomComponent {
         CssLayout css = new CssLayout();
         css.setWidth("100%");
         css.setStyleName(Notifique.STYLE_ITEM);
-        css.addStyleName(style != null? style: Styles.MESSAGE);
+        css.addStyleName(style != null ? style : Styles.MESSAGE);
         css.addComponent(component);
 
         // Wrap component into an animator
@@ -281,7 +285,7 @@ public class Notifique extends CustomComponent {
     }
 
     public Message add(Resource icon, String message, boolean allowHTML,
-            String style, boolean showCloseButton) {
+                       String style, boolean showCloseButton) {
 
         // A Label for the message
         Component l = createContentFor(message, allowHTML);
@@ -289,7 +293,7 @@ public class Notifique extends CustomComponent {
     }
 
     public Message add(Resource icon, Component component, String style,
-            boolean showCloseButton) {
+                       boolean showCloseButton) {
 
         HorizontalLayout lo = new HorizontalLayout();
         lo.setSpacing(true);
@@ -331,30 +335,33 @@ public class Notifique extends CustomComponent {
 
     /**
      * Remove all messages.
-     *
      */
     public void clear() {
         synchronized (items) {
-            final LinkedList<Component> l = new LinkedList<Component>();
+            final LinkedList<Component> l = new LinkedList<>();
 
-            for (final Iterator<Component> i = css.getComponentIterator(); i.hasNext();) {
+            for (final Iterator<Component> i = css.getComponentIterator(); i.hasNext(); ) {
                 l.add(i.next());
             }
 
-            for (final Iterator<Component> i = l.iterator(); i.hasNext();) {
+            for (final Iterator<Component> i = l.iterator(); i.hasNext(); ) {
                 Component component = i.next();
                 if (component instanceof CssLayout) {
                     css.removeComponent(component);
                 }
             }
             items.clear();
+
+            //unfortunately we can not directly remove animation from AnimationProxy.queue
+            //so we need to cancel them to prevent adding them to the PaintTarget
+            for (AnimatorProxy.Animation runningAnimation : runningAnimations)
+                runningAnimation.cancel();
+            runningAnimations.clear();
         }
     }
 
     /**
      * Get current size of the queue.
-     *
-     * @return
      */
     public int size() {
         synchronized (items) {
@@ -364,10 +371,7 @@ public class Notifique extends CustomComponent {
 
     /**
      * Set number of messages visible at once.
-     *
      * This is only meaningful if autoScroll is true.
-     *
-     * @param visibleItems
      */
     public void setVisibleCount(int visibleItems) {
         visibleCount = visibleItems;
@@ -375,8 +379,6 @@ public class Notifique extends CustomComponent {
 
     /**
      * Add new items to the top rather than the end of the list.
-     *
-     * @param fillFromTop
      */
     public void setFillFromTop(boolean fillFromTop) {
         this.fillFromTop = fillFromTop;
@@ -384,8 +386,6 @@ public class Notifique extends CustomComponent {
 
     /**
      * Add new items to the top rather than the end of the list.
-     *
-     * @return
      */
     public boolean isFillFromTop() {
         return fillFromTop;
@@ -414,9 +414,6 @@ public class Notifique extends CustomComponent {
 
     /**
      * Create a close button for a message.
-     *
-     * @param i
-     * @return
      */
     protected Button createCloseButtonFor(final Message i) {
         Button b = new Button();
@@ -442,7 +439,6 @@ public class Notifique extends CustomComponent {
     /**
      * Set the click listener to receive item (message) hide events.
      *
-     * @param hideListener
      */
 
     public void setHideListener(HideListener hideListener) {
@@ -456,7 +452,6 @@ public class Notifique extends CustomComponent {
     /**
      * Set the click listener to receive item (message) clikcs.
      *
-     * @param clickListener
      */
     public void setClickListener(ClickListener clickListener) {
         this.clickListener = clickListener;
