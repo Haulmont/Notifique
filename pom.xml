@@ -25,18 +25,6 @@
 			<url>http://maven.xgbi.fr/content/groups/public/</url>
 		</repository>
 	</repositories>
-	<distributionManagement>
-		<repository>
-			<id>xgbi-release</id>
-			<name>XGBI Release</name>
-			<url>http://maven.xgbi.fr/content/repositories/releases</url>
-		</repository>
-		<snapshotRepository>
-			<id>xgbi-snapshots</id>
-			<name>XGBI Snapshots</name>
-			<url>http://maven.xgbi.fr/content/repositories/snapshots</url>
-		</snapshotRepository>
-	</distributionManagement>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>vaadin-snapshots</id>
