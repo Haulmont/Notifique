@@ -128,9 +128,7 @@ public class Notifique extends CustomComponent {
         private Object data;
 
         private void show() {
-        	//runningAnimations.add(Animator.animate(animatedContent, new Css().setProperty("visibility", "visible")).delay(0).duration(200));
         	runningAnimations.add(Animator.animate(animatedContent, new Css().setProperty("max-height", "500px").setProperty("overflow","visible")).delay(0).duration(200));
-//            runningAnimations.add(ap.animate(animatedContent, AnimType.ROLL_DOWN_OPEN).setDuration(200).setDelay(0));
             visible = true;
         }
 
@@ -138,10 +136,7 @@ public class Notifique extends CustomComponent {
             if (!isVisible()) {
                 return;
             }
-//            Animator.animate(animatedContent, new Css().setProperty("visibility", "hidden")).delay(0).duration(200);
             Animator.animate(animatedContent, new Css().setProperty("max-height", "0px").setProperty("visibility", "hidden").setProperty("overflow","hidden")).delay(0).duration(200);
-//            ap.animate(animatedContent, AnimType.ROLL_UP_CLOSE_REMOVE).setDuration(200)
-//                    .setDelay(0);
             visible = false;
             if (getHideListener() != null) {
                 getHideListener().messageHide(this);

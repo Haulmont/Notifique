@@ -44,12 +44,6 @@
 			<version>${vaadin.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- <dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-client-compiled</artifactId>
-			<version>${vaadin.version}</version>
-			<scope>provided</scope>
-		</dependency> -->
 		<dependency>
 			<groupId>com.vaadin</groupId>
 			<artifactId>vaadin-themes</artifactId>
@@ -62,11 +56,6 @@
 			<version>${vaadin.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		<!-- <dependency>
-            <groupId>com.haulmont.thirdparty</groupId>
-            <artifactId>animator</artifactId>
-            <version>1.7.4</version>
-        </dependency> -->
 		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>animator</artifactId>
@@ -115,6 +104,9 @@
 					<!-- Comma-separated list of widgetsets in the package -->
 					<!-- TODO figure out a way make this automatically configured -->
 					<Vaadin-Widgetsets>${gwtModule}</Vaadin-Widgetsets>
+					<excludes>
+						<exclude>**/service/*</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 			<plugin>
