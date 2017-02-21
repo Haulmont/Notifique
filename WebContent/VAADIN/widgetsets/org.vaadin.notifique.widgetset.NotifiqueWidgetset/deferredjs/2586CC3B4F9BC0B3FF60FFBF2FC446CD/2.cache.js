@@ -1,0 +1,1 @@
+$wnd.org_vaadin_notifique_widgetset_NotifiqueWidgetset.runAsyncCallback2('Ldb(1615,1,h1d);_.vc=function Ihc(){n2b((!g2b&&(g2b=new s2b),g2b),this.a.d)};HWd(Th)(2);\n//# sourceURL=org.vaadin.notifique.widgetset.NotifiqueWidgetset-2.js\n')

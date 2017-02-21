@@ -16,20 +16,35 @@
 
 package org.vaadin.notifique;
 
-import com.vaadin.event.LayoutEvents.LayoutClickEvent;
-import com.vaadin.event.LayoutEvents.LayoutClickListener;
-import com.vaadin.server.Resource;
-import com.vaadin.ui.*;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.themes.Reindeer;
-import org.vaadin.jouni.animator.AnimatorProxy;
-import org.vaadin.jouni.animator.shared.AnimType;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
+import org.vaadin.jouni.animator.Animator;
+import org.vaadin.jouni.animator.Animator.AnimationEndEvent;
+import org.vaadin.jouni.animator.Animator.AnimationListener;
+import org.vaadin.jouni.animator.client.CssAnimation;
+import org.vaadin.jouni.dom.client.Css;
+
+import com.vaadin.event.LayoutEvents.LayoutClickEvent;
+import com.vaadin.event.LayoutEvents.LayoutClickListener;
+import com.vaadin.server.Extension;
+import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.label.ContentMode;
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CssLayout;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Embedded;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.UI;
+import com.vaadin.ui.themes.Reindeer;
 
 public class Notifique extends CustomComponent {
 
@@ -89,9 +104,22 @@ public class Notifique extends CustomComponent {
     private boolean fillFromTop = false;
     private HideListener hideListener;
     private ClickListener clickListener;
-    private AnimatorProxy ap;
-    protected List<AnimatorProxy.Animation> runningAnimations = new ArrayList<>();
-
+    protected List<CssAnimation> runningAnimations = new ArrayList<CssAnimation>();
+    private Animator animator;
+    private AnimationListener animationEndListener = new AnimationListener() {
+		
+		@Override
+		public void animationEnd(AnimationEndEvent animationEvent) {
+			 if (animationEvent.getComponent().getHeight() == 0 
+					 || animationEvent.getComponent().getWidth() == 0
+					 || "hidden".equals(animationEvent.getAnimation().css.properties.get("visibility"))
+					 || "0px".equals(animationEvent.getAnimation().css.properties.get("max-height"))) {
+                 removeComponentMessage(animationEvent.getComponent());
+             }
+		}
+	};
+    
+    
     public class Message implements Serializable {
         private static final long serialVersionUID = 5892777954593320723L;
         private Component component;
@@ -100,7 +128,7 @@ public class Notifique extends CustomComponent {
         private Object data;
 
         private void show() {
-            runningAnimations.add(ap.animate(animatedContent, AnimType.ROLL_DOWN_OPEN).setDuration(200).setDelay(0));
+        	runningAnimations.add(Animator.animate(animatedContent, new Css().setProperty("max-height", "500px").setProperty("overflow","visible")).delay(0).duration(200));
             visible = true;
         }
 
@@ -108,8 +136,7 @@ public class Notifique extends CustomComponent {
             if (!isVisible()) {
                 return;
             }
-            ap.animate(animatedContent, AnimType.ROLL_UP_CLOSE_REMOVE).setDuration(200)
-                    .setDelay(0);
+            Animator.animate(animatedContent, new Css().setProperty("max-height", "0px").setProperty("visibility", "hidden").setProperty("overflow","hidden")).delay(0).duration(200);
             visible = false;
             if (getHideListener() != null) {
                 getHideListener().messageHide(this);
@@ -177,21 +204,11 @@ public class Notifique extends CustomComponent {
 //    }
 
     public Notifique(boolean autoScroll) {
-        ap = new AnimatorProxy();
         css = new CssLayout();
         root = new Panel(css);
         root.setStyleName(Reindeer.PANEL_LIGHT);
         css.setWidth("100%");
-        css.addComponent(ap);
-        ap.addListener(new AnimatorProxy.AnimationListener() {
-            @Override
-            public void onAnimation(AnimatorProxy.AnimationEvent animationEvent) {
-                if (animationEvent.getAnimation().getType().equals(AnimType.ROLL_LEFT_CLOSE_REMOVE)
-                        || AnimType.ROLL_UP_CLOSE_REMOVE.equals(animationEvent.getAnimation().getType())) {
-                    removeComponentMessage(animationEvent.getComponent());
-                }
-            }
-        });
+
         root.addStyleName(STYLE_QUEUE);
         root.getContent().setStyleName(STYLE_QUEUE);
         setCompositionRoot(root);
@@ -228,6 +245,7 @@ public class Notifique extends CustomComponent {
                 css.addComponent(m.animatedContent);
             }
             m.show();
+            addAnimatorListener();
             if (autoScroll && items.size() > getVisibleCount()) {
                 Message hideThis = fillFromTop ? items.get(items.size() - 1)
                         : items.get(0);
@@ -236,6 +254,19 @@ public class Notifique extends CustomComponent {
             }
         }
     }
+
+    private void addAnimatorListener() {
+    	UI ui = UI.getCurrent();
+    	for (Extension ex : ui.getExtensions()) {
+            if (ex instanceof Animator) {
+                animator = (Animator) ex;
+            }
+        }
+    	if (animator != null) {
+    		animator.addListener(animationEndListener);
+    	}
+		
+	}
 
 //    /**
 //     * Remove the item after it has been hidden.
@@ -320,7 +351,7 @@ public class Notifique extends CustomComponent {
         }
 
         // Listen for clicks
-        lo.addListener(new LayoutClickListener() {
+        lo.addLayoutClickListener(new LayoutClickListener() {
             private static final long serialVersionUID = 7524442205441374595L;
 
             public void layoutClick(LayoutClickEvent event) {
@@ -340,7 +371,7 @@ public class Notifique extends CustomComponent {
         synchronized (items) {
             final LinkedList<Component> l = new LinkedList<>();
 
-            for (final Iterator<Component> i = css.getComponentIterator(); i.hasNext(); ) {
+            for (final Iterator<Component> i = css.iterator(); i.hasNext(); ) {
                 l.add(i.next());
             }
 
@@ -354,8 +385,8 @@ public class Notifique extends CustomComponent {
 
             //unfortunately we can not directly remove animation from AnimationProxy.queue
             //so we need to cancel them to prevent adding them to the PaintTarget
-            for (AnimatorProxy.Animation runningAnimation : runningAnimations)
-                runningAnimation.cancel();
+            for (CssAnimation runningAnimation : runningAnimations)
+                runningAnimation.sendEndEvent();
             runningAnimations.clear();
         }
     }
@@ -417,7 +448,7 @@ public class Notifique extends CustomComponent {
      */
     protected Button createCloseButtonFor(final Message i) {
         Button b = new Button();
-        b.addListener(new Button.ClickListener() {
+        b.addClickListener(new Button.ClickListener() {
             private static final long serialVersionUID = -1932127150282887613L;
 
             public void buttonClick(ClickEvent event) {
@@ -431,8 +462,8 @@ public class Notifique extends CustomComponent {
     }
 
     protected Component createContentFor(String string, boolean allowHTML) {
-        Label l = new Label(string, allowHTML ? Label.CONTENT_RAW
-                : Label.CONTENT_TEXT);
+        Label l = new Label(string, allowHTML ? ContentMode.HTML
+                : ContentMode.TEXT);
         return l;
     }
 

@@ -33,10 +33,19 @@
      Firefox 2 and safari is used for  webkit based browsers including
      Google Chrome.
     -->
-
-    <inherits name="com.vaadin.DefaultWidgetSet" />
+    
+	<inherits name="com.vaadin.Vaadin" />
+	
+	
+	
     <inherits name="org.vaadin.jouni.animator.AnimatorWidgetset" />
 
 	<stylesheet src="notifique/styles.css "/>
 
+
+    <inherits name="org.vaadin.jouni.dom.DomWidgetset" />
+
+    
+
+    <inherits name="com.vaadin.DefaultWidgetSet" />
 </module>

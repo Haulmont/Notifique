@@ -1,0 +1,6 @@
+/target/
+
+/gwt-unitCache*
+.settings
+.project
+.classpath
