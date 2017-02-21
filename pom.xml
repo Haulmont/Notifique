@@ -19,12 +19,6 @@
 		<jdkVersion>1.8</jdkVersion>
 		<gwtModule>org.vaadin.notifique.widgetset.NotifiqueWidgetset</gwtModule>
 	</properties>
-	<repositories>
-		<repository>
-			<id>xgbi-internal</id>
-			<url>http://maven.xgbi.fr/content/groups/public/</url>
-		</repository>
-	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
 			<id>vaadin-snapshots</id>
